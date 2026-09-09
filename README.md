@@ -4,9 +4,9 @@ Code, data manifests, held-out predictions and the full analysis chain for the
 paper. Everything reported in the paper can be regenerated from this repository
 on a laptop CPU in about a minute.
 
-**Mohammad Kamal Abdulaziz**, Department of Data Science and Artificial Intelligence,
-The University of Jordan · supervised by **Dr. Rizik Al-Sayyed**, Department of
-Business Information Technology, The University of Jordan.
+**Mohammad Kamal Abdulaziz**, King Abdullah II School of Information Technology,
+The University of Jordan · supervised by **Dr. Rizik Al-Sayyed**, King Abdullah II
+School of Information Technology, The University of Jordan.
 
 ---
 
@@ -51,15 +51,15 @@ calibration error is not the method with the lowest selective risk.
 ## Reproduce it
 
 ```bash
-git clone <this repo>
-cd apex-selective-prediction
+git clone https://github.com/Mohammad-Kamal23/IEEE-cis-submission.git
+cd IEEE-cis-submission
 pip install -r requirements.txt
 python reproduce.py
 ```
 
 No GPU. No trained weights. No image data. About a minute.
 
-`reproduce.py` runs five steps:
+`reproduce.py` runs seven steps:
 
 1. **Recompute every metric from the committed predictions.** It loads the 90
    held-out prediction files in `results/probs/` and recomputes all nineteen
