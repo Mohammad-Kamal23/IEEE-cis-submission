@@ -226,14 +226,20 @@ def step5_proposition():
 
 
 def step6_figures():
-    head(6, "regenerate the four figures")
+    head(6, "regenerate the tables and the four figures")
     os.makedirs(os.path.join(BUILD, "plots"), exist_ok=True)
     env = dict(os.environ, MPLBACKEND="Agg", APEX_RESULTS=RESULTS)
+    # stats -> tables is what step 7 compares; the four plot scripts are the slow
+    # part. APEX_SKIP_FIGURES=1 runs everything except the rendering.
     chain = [("stats.py", "stats.json"), ("stats2.py", "stats2.json"),
-             ("mktables.py", "tab1.tex"), ("fig1.py", "plots/fig1_architecture.pdf"),
-             ("fig_rc.py", "plots/fig2_selective.pdf"),
-             ("fig_rel.py", "plots/fig3_calibration.pdf"),
-             ("fig_abl.py", "plots/fig4_ablation.pdf")]
+             ("mktables.py", "tab1.tex")]
+    if os.environ.get("APEX_SKIP_FIGURES") not in ("1", "true", "yes"):
+        chain += [("fig1.py", "plots/fig1_architecture.pdf"),
+                  ("fig_rc.py", "plots/fig2_selective.pdf"),
+                  ("fig_rel.py", "plots/fig3_calibration.pdf"),
+                  ("fig_abl.py", "plots/fig4_ablation.pdf")]
+    else:
+        print("  APEX_SKIP_FIGURES set -- rendering skipped, numbers still checked")
     for script, product in chain:
         r = subprocess.run([sys.executable, os.path.join(ROOT, "analysis", script)],
                            cwd=BUILD, capture_output=True, text=True, env=env)
@@ -310,6 +316,7 @@ def step7_compare():
     if not os.path.isdir(REFERENCE):
         print("  reference_outputs/ not present -- skipping")
         return
+    skipped_figs = os.environ.get("APEX_SKIP_FIGURES") in ("1", "true", "yes")
     print("  every file below was produced by our run and committed. Yours was")
     print("  produced a moment ago on your machine. They should agree.\n")
     n_ok = 0
@@ -319,7 +326,10 @@ def step7_compare():
         if not os.path.isfile(ref):
             continue
         if not os.path.exists(got):
-            ck(f"{name}", False, "not generated")
+            if skipped_figs:
+                print(f"  [ -- ] {name:<24} skipped (produced by a figure script)")
+            else:
+                ck(f"{name}", False, "not generated")
             continue
         if name.endswith(".json"):
             try:
