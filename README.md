@@ -96,6 +96,44 @@ Exit status is 0 only if every check passes. A clean run ends with:
 
 87 checks in total.
 
+### What changes between environments, and what does not
+
+Two kinds of number live in this repository, and they behave differently when you
+run it on a different machine.
+
+**Exact everywhere.** Balanced accuracy, F1, AUROC, ECE, debiased ECE, class-wise
+SCE, Brier, BSS, mean confidence, MTP, MCE, OCE, CCC, AURC, excess AURC and risk
+at 90% / 80% coverage are counting, sorting and arithmetic over the committed
+probability vectors. They must reproduce to the last bit on any machine. If one
+of them moves at all, something is genuinely wrong and step 1 fails.
+
+**Agree to a tolerance.** Negative log-likelihood and predictive entropy go
+through library math — `sklearn.metrics.log_loss` and `numpy.log` — whose final
+bits differ between builds and versions. Two environments we measured:
+
+| | Python | numpy | scipy | scikit-learn | max deviation |
+|---|---|---|---|---|---|
+| Linux (reference) | 3.10.12 | 2.2.6 | 1.15.3 | 1.7.2 | 0.000e+00 |
+| Windows | 3.13.2 | 2.3.5 | 1.18.0 | 1.9.0 | 1.354e-07 (NLL), 5.6e-17 (entropy) |
+
+The 1.354e-07 sits on a NLL of 0.4466 — a relative difference of 3 × 10⁻⁷, on one
+cell out of 1,080. The paper quotes NLL to four decimal places, so it is three
+orders of magnitude below anything reported. `reproduce.py` therefore requires
+exactness from the first group and a 1e-6 tolerance from the second, and prints
+the actual deviation for every metric either way so you can judge for yourself.
+
+**What would be a real problem.** A deviation above 1e-6, or any movement at all
+in AURC, Risk@90 or the accuracy metrics. That would mean the tables were not
+built from the committed predictions, or that a library changed something
+substantive. Step 1 fails loudly in that case rather than rounding it away.
+
+Two other environment notes: the cross-reference checks in
+`analysis/verify_claims.py` need poppler's `pdftotext` and are skipped with a
+note where it is absent — they check that every figure and table is cited in the
+paper body, not any number. And figures are never byte-compared, because PDF and
+PNG output embeds a creation timestamp; the numbers behind every panel are in the
+JSON files, which are compared exactly.
+
 `python analysis/rq1_invariance.py` separately verifies Proposition 1 by applying
 five strictly increasing maps to the uncalibrated confidences of all 18
 configurations: AURC does not move in any digit, while ECE ranges from

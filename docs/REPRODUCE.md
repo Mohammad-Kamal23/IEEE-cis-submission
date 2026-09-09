@@ -160,8 +160,36 @@ rather than silently changing your results.
 
 ## Environment
 
-Developed and verified on Python 3.10 with numpy 2.2, scipy 1.15,
-scikit-learn 1.7 and matplotlib 3.10. Training used PyTorch with CUDA and `timm`
-backbones. Level 1 has no pinned-version requirement beyond the floors in
-`requirements.txt`; if a future scikit-learn changes `balanced_accuracy_score` or
-`log_loss`, step 1 will report the deviation rather than hide it.
+Verified on two deliberately different setups:
+
+| | OS | Python | numpy | scipy | scikit-learn | matplotlib | step 1 max deviation |
+|---|---|---|---|---|---|---|---|
+| reference | Linux | 3.10.12 | 2.2.6 | 1.15.3 | 1.7.2 | 3.10.9 | 0.000e+00 |
+| independent | Windows | 3.13.2 | 2.3.5 | 1.18.0 | 1.9.0 | 3.11.1 | 1.354e-07 |
+
+Every check passes on both, and all seven reference outputs match exactly on
+both. Training used PyTorch with CUDA and `timm` backbones; none of that is
+needed for Level 1.
+
+### Why the two columns differ, and by how much
+
+Seventeen of the nineteen metrics are counting, sorting and plain arithmetic over
+the committed probability vectors. Those reproduced **bit-exactly on both**
+machines, including every selective-prediction metric — AURC, excess AURC, and
+risk at 90% and 80% coverage — and every accuracy and calibration metric.
+
+Two did not: negative log-likelihood, by 1.354 × 10⁻⁷ on a single fold
+(`ULTRASOUND/ConvNeXt/f5/ISOTONIC`, out of 1,080 cells), and predictive entropy,
+by 5.6 × 10⁻¹⁷. Both are evaluated through library routines — `log_loss` and
+`numpy.log` — whose last bits are not guaranteed stable across versions. Isotonic
+regression makes the NLL cell the most sensitive one in the study, because it
+emits exact zeros and ones that are clipped before the logarithm.
+
+`reproduce.py` holds the first group to exactness and the second to 1e-6, and
+prints the measured deviation for all nineteen regardless. The threshold is three
+orders of magnitude below the precision any number in the paper is quoted at, so
+a deviation large enough to change a published figure cannot pass it.
+
+If you see a deviation above 1e-6, or any movement in AURC, Risk@90 or the
+accuracy metrics, that is a real finding rather than numerical noise — please
+open an issue with your library versions and the exact output.
