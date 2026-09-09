@@ -1,0 +1,640 @@
+{
+ "generated": "2026-08-24 10:44:08",
+ "total_duplicate_groups": 408,
+ "total_cross_class_groups": 4,
+ "datasets": [
+  {
+   "dataset": "BLOODCELL",
+   "root": "C:\\Users\\homeb\\Desktop\\research\\BloodCell",
+   "images": 12515,
+   "unique": 12513,
+   "duplicate_groups": 2,
+   "cross_class_groups": 0,
+   "cross_class_extra_files": 0,
+   "within_class_groups": 2,
+   "within_class_extra_files": 2,
+   "seconds": 16.4,
+   "clean": false,
+   "_cross_examples": [],
+   "_within_examples": [
+    [
+     "dataset2-master\\images\\TEST_SIMPLE\\EOSINOPHIL\\_0_5239.jpeg",
+     "dataset2-master\\images\\TEST_SIMPLE\\EOSINOPHIL\\_4_8814.jpeg"
+    ],
+    [
+     "dataset2-master\\images\\TEST_SIMPLE\\EOSINOPHIL\\_1_5031.jpeg",
+     "dataset2-master\\images\\TEST_SIMPLE\\EOSINOPHIL\\_6_7701.jpeg"
+    ]
+   ]
+  },
+  {
+   "dataset": "BRAINTUMOR",
+   "root": "C:\\Users\\homeb\\Desktop\\research\\BRAINTUMOR",
+   "images": 7200,
+   "unique": 7013,
+   "duplicate_groups": 153,
+   "cross_class_groups": 0,
+   "cross_class_extra_files": 0,
+   "within_class_groups": 153,
+   "within_class_extra_files": 187,
+   "seconds": 9.0,
+   "clean": false,
+   "_cross_examples": [],
+   "_within_examples": [
+    [
+     "Testing\\glioma\\Te-gl_129.jpg",
+     "Testing\\glioma\\Te-gl_303.jpg"
+    ],
+    [
+     "Testing\\glioma\\Te-gl_140.jpg",
+     "Testing\\glioma\\Te-gl_238.jpg"
+    ],
+    [
+     "Testing\\glioma\\Te-gl_143.jpg",
+     "Testing\\glioma\\Te-gl_72.jpg"
+    ],
+    [
+     "Testing\\glioma\\Te-gl_144.jpg",
+     "Testing\\glioma\\Te-gl_59.jpg"
+    ],
+    [
+     "Testing\\glioma\\Te-gl_166.jpg",
+     "Testing\\glioma\\Te-gl_278.jpg"
+    ],
+    [
+     "Testing\\glioma\\Te-gl_170.jpg",
+     "Testing\\glioma\\Te-gl_178.jpg"
+    ],
+    [
+     "Testing\\glioma\\Te-gl_171.jpg",
+     "Testing\\glioma\\Te-gl_228.jpg"
+    ],
+    [
+     "Testing\\glioma\\Te-gl_177.jpg",
+     "Testing\\glioma\\Te-gl_36.jpg"
+    ],
+    [
+     "Testing\\glioma\\Te-gl_204.jpg",
+     "Testing\\glioma\\Te-gl_259.jpg"
+    ],
+    [
+     "Testing\\glioma\\Te-gl_212.jpg",
+     "Testing\\glioma\\Te-gl_272.jpg",
+     "Testing\\glioma\\Te-gl_338.jpg"
+    ],
+    [
+     "Testing\\glioma\\Te-gl_270.jpg",
+     "Testing\\glioma\\Te-gl_29.jpg"
+    ],
+    [
+     "Testing\\glioma\\Te-gl_299.jpg",
+     "Testing\\glioma\\Te-gl_364.jpg"
+    ],
+    [
+     "Testing\\glioma\\Te-gl_32.jpg",
+     "Testing\\glioma\\Te-gl_389.jpg"
+    ],
+    [
+     "Testing\\meningioma\\Te-me_116.jpg",
+     "Testing\\meningioma\\Te-me_235.jpg"
+    ],
+    [
+     "Testing\\meningioma\\Te-me_179.jpg",
+     "Testing\\meningioma\\Te-me_198.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-aug-me_89.jpg",
+     "Training\\meningioma\\Tr-me_889.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-aug-me_90.jpg",
+     "Training\\meningioma\\Tr-me_1242.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-aug-me_91.jpg",
+     "Training\\meningioma\\Tr-me_245.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-aug-me_92.jpg",
+     "Training\\meningioma\\Tr-me_268.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-aug-me_94.jpg",
+     "Training\\meningioma\\Tr-me_824.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-aug-me_95.jpg",
+     "Training\\meningioma\\Tr-me_1295.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-aug-me_97.jpg",
+     "Training\\meningioma\\Tr-me_532.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-aug-me_98.jpg",
+     "Training\\meningioma\\Tr-me_1274.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-me_1094.jpg",
+     "Training\\meningioma\\Tr-me_219.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-me_1101.jpg",
+     "Training\\meningioma\\Tr-me_836.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-me_339.jpg",
+     "Training\\meningioma\\Tr-me_534.jpg",
+     "Training\\meningioma\\Tr-me_86.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-me_432.jpg",
+     "Training\\meningioma\\Tr-me_561.jpg"
+    ],
+    [
+     "Training\\meningioma\\Tr-me_543.jpg",
+     "Training\\meningioma\\Tr-me_726.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1000.jpg",
+     "Training\\notumor\\Tr-no_105.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1015.jpg",
+     "Training\\notumor\\Tr-no_1339.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1016.jpg",
+     "Training\\notumor\\Tr-no_819.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1021.jpg",
+     "Training\\notumor\\Tr-no_503.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1023.jpg",
+     "Training\\notumor\\Tr-no_400.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1039.jpg",
+     "Training\\notumor\\Tr-no_1385.jpg",
+     "Training\\notumor\\Tr-no_600.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1046.jpg",
+     "Training\\notumor\\Tr-no_454.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1051.jpg",
+     "Training\\notumor\\Tr-no_1158.jpg",
+     "Training\\notumor\\Tr-no_330.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1061.jpg",
+     "Training\\notumor\\Tr-no_1134.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1062.jpg",
+     "Training\\notumor\\Tr-no_5.jpg",
+     "Training\\notumor\\Tr-no_693.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1063.jpg",
+     "Training\\notumor\\Tr-no_864.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1070.jpg",
+     "Training\\notumor\\Tr-no_412.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1077.jpg",
+     "Training\\notumor\\Tr-no_1400.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1079.jpg",
+     "Training\\notumor\\Tr-no_129.jpg",
+     "Training\\notumor\\Tr-no_62.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1083.jpg",
+     "Training\\notumor\\Tr-no_217.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1085.jpg",
+     "Training\\notumor\\Tr-no_692.jpg",
+     "Training\\notumor\\Tr-no_767.jpg",
+     "Training\\notumor\\Tr-no_98.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_109.jpg",
+     "Training\\notumor\\Tr-no_1183.jpg",
+     "Training\\notumor\\Tr-no_371.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1095.jpg",
+     "Training\\notumor\\Tr-no_69.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1105.jpg",
+     "Training\\notumor\\Tr-no_569.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1109.jpg",
+     "Training\\notumor\\Tr-no_1380.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_112.jpg",
+     "Training\\notumor\\Tr-no_1178.jpg",
+     "Training\\notumor\\Tr-no_1265.jpg",
+     "Training\\notumor\\Tr-no_308.jpg",
+     "Training\\notumor\\Tr-no_494.jpg"
+    ],
+    [
+     "Training\\notumor\\Tr-no_1126.jpg",
+     "Training\\notumor\\Tr-no_564.jpg"
+    ]
+   ]
+  },
+  {
+   "dataset": "CHEST-XRAY",
+   "root": "C:\\Users\\homeb\\Desktop\\research\\CHEST-XRAY",
+   "images": 4006,
+   "unique": 3994,
+   "duplicate_groups": 12,
+   "cross_class_groups": 0,
+   "cross_class_extra_files": 0,
+   "within_class_groups": 12,
+   "within_class_extra_files": 12,
+   "seconds": 8.2,
+   "clean": false,
+   "_cross_examples": [],
+   "_within_examples": [
+    [
+     "test\\NORMAL\\NORMAL2-IM-0095-0001.jpeg",
+     "test\\NORMAL\\NORMAL2-IM-0096-0001.jpeg"
+    ],
+    [
+     "test\\NORMAL\\NORMAL2-IM-0173-0001-0001.jpeg",
+     "test\\NORMAL\\NORMAL2-IM-0173-0001-0002.jpeg"
+    ],
+    [
+     "test\\NORMAL\\NORMAL2-IM-0246-0001-0001.jpeg",
+     "test\\NORMAL\\NORMAL2-IM-0246-0001-0002.jpeg"
+    ],
+    [
+     "test\\PNEUMONIA\\person128_bacteria_606.jpeg",
+     "test\\PNEUMONIA\\person128_bacteria_607.jpeg"
+    ],
+    [
+     "test\\PNEUMONIA\\person134_bacteria_643.jpeg",
+     "test\\PNEUMONIA\\person134_bacteria_644.jpeg"
+    ],
+    [
+     "test\\PNEUMONIA\\person1661_virus_2872.jpeg",
+     "test\\PNEUMONIA\\person1661_virus_2873.jpeg"
+    ],
+    [
+     "train\\NORMAL\\NORMAL2-IM-0587-0001-0001.jpeg",
+     "train\\NORMAL\\NORMAL2-IM-0587-0001-0002.jpeg"
+    ],
+    [
+     "train\\PNEUMONIA\\person30_bacteria_156.jpeg",
+     "train\\PNEUMONIA\\person30_bacteria_157.jpeg"
+    ],
+    [
+     "train\\PNEUMONIA\\person357_virus_734.jpeg",
+     "train\\PNEUMONIA\\person357_virus_735.jpeg"
+    ],
+    [
+     "train\\PNEUMONIA\\person401_virus_797.jpeg",
+     "train\\PNEUMONIA\\person401_virus_798.jpeg"
+    ],
+    [
+     "train\\PNEUMONIA\\person688_virus_1281.jpeg",
+     "train\\PNEUMONIA\\person688_virus_1282.jpeg"
+    ],
+    [
+     "train\\PNEUMONIA\\person834_bacteria_2747.jpeg",
+     "train\\PNEUMONIA\\person834_bacteria_2748.jpeg"
+    ]
+   ]
+  },
+  {
+   "dataset": "ENDOSCOPIC",
+   "root": "C:\\Users\\homeb\\Desktop\\research\\ENDOSCOPIC",
+   "images": 4000,
+   "unique": 3990,
+   "duplicate_groups": 10,
+   "cross_class_groups": 0,
+   "cross_class_extra_files": 0,
+   "within_class_groups": 10,
+   "within_class_extra_files": 10,
+   "seconds": 7.4,
+   "clean": false,
+   "_cross_examples": [],
+   "_within_examples": [
+    [
+     "Diverticulosis\\2781dc1f-d88f-48cc-982e-9f0f147eb6f6.jpg",
+     "Diverticulosis\\2ee00dbb-1c4a-46dc-92f8-6bfe66cb1a3b.jpg"
+    ],
+    [
+     "Diverticulosis\\73bf3c4f-c78b-44c7-ba98-3c8f1aeed6cc.jpg",
+     "Diverticulosis\\ad250fde-7271-4e25-8285-b078ec1715f2.jpg"
+    ],
+    [
+     "Peritonitis\\0e68fc5b-beaa-4607-a13a-f6db84121c78.jpg",
+     "Peritonitis\\92177bcd-eeee-4dd4-b904-fb902771f334.jpg"
+    ],
+    [
+     "Peritonitis\\47bcdfff-ecb9-42fd-8091-d63ee2f7dada.jpg",
+     "Peritonitis\\4d98990f-5108-4075-b824-d65186bdf035.jpg"
+    ],
+    [
+     "Peritonitis\\9936b7d3-d4c6-4b19-a6d9-957c63fd1d09.jpg",
+     "Peritonitis\\c116d49a-64af-4059-af00-a88e687d46d7.jpg"
+    ],
+    [
+     "Ureters\\28db4e2a-2b48-43b7-88b2-5eaba2eb41f4.jpg",
+     "Ureters\\a9bed1c9-0601-4ab6-bf06-1dc2cdd4bed9.jpg"
+    ],
+    [
+     "Ureters\\2b42eaad-16d3-4bab-85b2-07a51488be7b.jpg",
+     "Ureters\\761fffc8-bc50-4dd9-a91f-90fc5a963e04.jpg"
+    ],
+    [
+     "Ureters\\40632e28-dd57-4a6b-8c4e-aa7ed2098f1d.jpg",
+     "Ureters\\88e1bfca-2264-4327-911d-394dce0bf153.jpg"
+    ],
+    [
+     "Ureters\\47696854-bb6e-45a0-959f-7eec2f42b90d.jpg",
+     "Ureters\\a5c5aed5-a5b3-4d38-882a-340060128a66.jpg"
+    ],
+    [
+     "Ureters\\4ef52d45-8595-4700-ab03-b11406cd197c.jpg",
+     "Ureters\\e421e8b3-1696-430a-b682-48e57efc97a6.jpg"
+    ]
+   ]
+  },
+  {
+   "dataset": "RETINAL",
+   "root": "C:\\Users\\homeb\\Desktop\\research\\RetinalOCT",
+   "images": 4289,
+   "unique": 3966,
+   "duplicate_groups": 228,
+   "cross_class_groups": 3,
+   "cross_class_extra_files": 3,
+   "within_class_groups": 225,
+   "within_class_extra_files": 320,
+   "seconds": 5.6,
+   "clean": false,
+   "_cross_examples": [
+    [
+     "CNV-samples\\1110.jpg",
+     "Drusen-samples\\144.jpg"
+    ],
+    [
+     "CNV-samples\\982.jpg",
+     "Drusen-samples\\35.jpg"
+    ],
+    [
+     "CNV-samples\\988.jpg",
+     "Drusen-samples\\38.jpg"
+    ]
+   ],
+   "_within_examples": [
+    [
+     "CNV-samples\\100.jpg",
+     "CNV-samples\\101.jpg"
+    ],
+    [
+     "CNV-samples\\102.jpg",
+     "CNV-samples\\103.jpg"
+    ],
+    [
+     "CNV-samples\\104.jpg",
+     "CNV-samples\\105.jpg"
+    ],
+    [
+     "CNV-samples\\106.jpg",
+     "CNV-samples\\107.jpg"
+    ],
+    [
+     "CNV-samples\\108.jpg",
+     "CNV-samples\\109.jpg"
+    ],
+    [
+     "CNV-samples\\11.jpg",
+     "CNV-samples\\12.jpg"
+    ],
+    [
+     "CNV-samples\\110.jpg",
+     "CNV-samples\\111.jpg"
+    ],
+    [
+     "CNV-samples\\112.jpg",
+     "CNV-samples\\113.jpg"
+    ],
+    [
+     "CNV-samples\\115.jpg",
+     "CNV-samples\\116.jpg"
+    ],
+    [
+     "CNV-samples\\1221.jpg",
+     "CNV-samples\\1222.jpg"
+    ],
+    [
+     "CNV-samples\\1224.jpg",
+     "CNV-samples\\1225.jpg",
+     "CNV-samples\\1226.jpg"
+    ],
+    [
+     "CNV-samples\\1227.jpg",
+     "CNV-samples\\1228.jpg"
+    ],
+    [
+     "CNV-samples\\1229.jpg",
+     "CNV-samples\\1230.jpg"
+    ],
+    [
+     "CNV-samples\\123.jpg",
+     "CNV-samples\\124.jpg"
+    ],
+    [
+     "CNV-samples\\1231.jpg",
+     "CNV-samples\\1232.jpg"
+    ],
+    [
+     "CNV-samples\\1233.jpg",
+     "CNV-samples\\1234.jpg"
+    ],
+    [
+     "CNV-samples\\1235.jpg",
+     "CNV-samples\\1236.jpg"
+    ],
+    [
+     "CNV-samples\\1237.jpg",
+     "CNV-samples\\1238.jpg"
+    ],
+    [
+     "CNV-samples\\1239.jpg",
+     "CNV-samples\\1240.jpg"
+    ],
+    [
+     "CNV-samples\\1241.jpg",
+     "CNV-samples\\1242.jpg"
+    ],
+    [
+     "CNV-samples\\1243.jpg",
+     "CNV-samples\\1244.jpg"
+    ],
+    [
+     "CNV-samples\\125.jpg",
+     "CNV-samples\\317.jpg"
+    ],
+    [
+     "CNV-samples\\126.jpg",
+     "CNV-samples\\178.jpg"
+    ],
+    [
+     "CNV-samples\\127.jpg",
+     "CNV-samples\\128.jpg"
+    ],
+    [
+     "CNV-samples\\129.jpg",
+     "CNV-samples\\130.jpg",
+     "CNV-samples\\77.jpg",
+     "CNV-samples\\78.jpg"
+    ],
+    [
+     "CNV-samples\\13.jpg",
+     "CNV-samples\\14.jpg"
+    ],
+    [
+     "CNV-samples\\131.jpg",
+     "CNV-samples\\132.jpg"
+    ],
+    [
+     "CNV-samples\\133.jpg",
+     "CNV-samples\\134.jpg"
+    ],
+    [
+     "CNV-samples\\135.jpg",
+     "CNV-samples\\136.jpg"
+    ],
+    [
+     "CNV-samples\\137.jpg",
+     "CNV-samples\\138.jpg"
+    ],
+    [
+     "CNV-samples\\15.jpg",
+     "CNV-samples\\17.jpg"
+    ],
+    [
+     "CNV-samples\\152.jpg",
+     "CNV-samples\\153.jpg"
+    ],
+    [
+     "CNV-samples\\154.jpg",
+     "CNV-samples\\155.jpg"
+    ],
+    [
+     "CNV-samples\\156.jpg",
+     "CNV-samples\\157.jpg"
+    ],
+    [
+     "CNV-samples\\158.jpg",
+     "CNV-samples\\159.jpg"
+    ],
+    [
+     "CNV-samples\\160.jpg",
+     "CNV-samples\\161.jpg"
+    ],
+    [
+     "CNV-samples\\163.jpg",
+     "CNV-samples\\164.jpg"
+    ],
+    [
+     "CNV-samples\\171.jpg",
+     "CNV-samples\\172.jpg"
+    ],
+    [
+     "CNV-samples\\173.jpg",
+     "CNV-samples\\174.jpg"
+    ],
+    [
+     "CNV-samples\\176.jpg",
+     "CNV-samples\\177.jpg"
+    ],
+    [
+     "CNV-samples\\179.jpg",
+     "CNV-samples\\271.jpg"
+    ],
+    [
+     "CNV-samples\\18.jpg",
+     "CNV-samples\\20.jpg"
+    ],
+    [
+     "CNV-samples\\189.jpg",
+     "CNV-samples\\190.jpg"
+    ],
+    [
+     "CNV-samples\\191.jpg",
+     "CNV-samples\\192.jpg"
+    ],
+    [
+     "CNV-samples\\195.jpg",
+     "CNV-samples\\196.jpg"
+    ],
+    [
+     "CNV-samples\\204.jpg",
+     "CNV-samples\\205.jpg"
+    ],
+    [
+     "CNV-samples\\206.jpg",
+     "CNV-samples\\207.jpg"
+    ],
+    [
+     "CNV-samples\\210.jpg",
+     "CNV-samples\\211.jpg"
+    ],
+    [
+     "CNV-samples\\221.jpg",
+     "CNV-samples\\222.jpg"
+    ],
+    [
+     "CNV-samples\\23.jpg",
+     "CNV-samples\\26.jpg"
+    ]
+   ]
+  },
+  {
+   "dataset": "ULTRASOUND",
+   "root": "C:\\Users\\homeb\\Desktop\\research\\BreastUltrasound",
+   "images": 1578,
+   "unique": 1575,
+   "duplicate_groups": 3,
+   "cross_class_groups": 1,
+   "cross_class_extra_files": 1,
+   "within_class_groups": 2,
+   "within_class_extra_files": 2,
+   "seconds": 2.7,
+   "clean": false,
+   "_cross_examples": [
+    [
+     "Dataset_BUSI_with_GT\\benign\\benign (433).png",
+     "Dataset_BUSI_with_GT\\malignant\\malignant (145).png"
+    ]
+   ],
+   "_within_examples": [
+    [
+     "Dataset_BUSI_with_GT\\normal\\normal (56)_mask.png",
+     "Dataset_BUSI_with_GT\\normal\\normal (62)_mask.png"
+    ],
+    [
+     "Dataset_BUSI_with_GT\\normal\\normal (63)_mask.png",
+     "Dataset_BUSI_with_GT\\normal\\normal (74)_mask.png"
+    ]
+   ]
+  }
+ ]
+}

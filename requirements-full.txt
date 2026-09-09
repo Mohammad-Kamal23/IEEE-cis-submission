@@ -1,0 +1,7 @@
+# Additionally required to retrain the heads and re-extract features
+# (src/apex_pipeline.py stages: train, extract). A CUDA GPU is assumed.
+-r requirements.txt
+torch>=2.0
+torchvision>=0.15
+timm>=0.9
+pillow>=10.0

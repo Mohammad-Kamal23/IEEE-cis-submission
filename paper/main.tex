@@ -1,0 +1,495 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{url}
+\newtheorem{proposition}{Proposition}
+
+\begin{document}
+
+\title{APEX: Latent-Space Kernel Fusion for Selective\\ Prediction with Frozen Medical Image Classifiers}
+
+\author{
+\IEEEauthorblockN{Mohammad Kamal Abdulaziz}
+\IEEEauthorblockA{\textit{Department of Data Science and Artificial Intelligence}\\
+\textit{The University of Jordan}\\
+Amman, Jordan \\
+moh0217526@ju.edu.jo}
+\and
+\IEEEauthorblockN{Rizik Al-Sayyed}
+\IEEEauthorblockA{\textit{Department of Business Information Technology}\\
+\textit{The University of Jordan}\\
+Amman, Jordan \\
+r.alsayyed@ju.edu.jo}
+}
+
+\maketitle
+
+\begin{abstract}
+A diagnostic model allowed to abstain is judged less by how often it is right than
+by how well its confidence orders its own mistakes. We present APEX, a post-hoc
+layer that improves that ordering without touching the network. APEX leaves the
+backbone frozen and works on the penultimate representation the classifier
+computes and then discards: it concatenates that latent vector with image
+descriptors, projects the pair onto a shared low-dimensional subspace, evaluates
+three kernel experts there, and mixes their posteriors with the original softmax
+under a confidence-conditional gate. The weights are fitted by minimising negative
+log-likelihood, a strictly proper rule, and we show that choice is what keeps the
+fused probabilities honest. Across six imaging modalities, three backbone families
+and five-fold cross-validation (90 trained heads, 18 paired configurations,
+fifteen metrics), APEX lowers the area under the risk--coverage curve by 44.3\%
+and selective risk at 90\% coverage from 10.71\% to 6.52\%. AURC, Brier score and
+log-likelihood improve in all 18 configurations against each of six baselines at
+$p<10^{-4}$; balanced accuracy and selective risk in at least 17 of 18. Expected calibration error does not, and that asymmetry is
+the paper's main point: selective risk is invariant to monotone rescaling of
+confidence where calibration error is not, and in 15 of 18 configurations the
+method with the lowest calibration error is not the one with the lowest selective
+risk.
+\end{abstract}
+
+\begin{IEEEkeywords}
+selective prediction, confidence calibration, post-hoc methods, medical image
+analysis, kernel methods, proper scoring rules
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+A deployed diagnostic model is rarely asked to decide everything. The realistic
+workflow is triage: the system handles the cases it is sure about and refers the
+rest to a clinician~\cite{kompa2021second}. The decisive question is then not
+aggregate accuracy but whether the model's confidence separates the cases it will
+get right from the ones it will get wrong---a property called selective
+prediction, summarised by the area under the risk--coverage
+curve~\cite{elyaniv2010foundations,geifman2017selective}.
+
+Post-hoc calibration is the natural place to look for it: a calibrator adjusts a
+trained model's probabilities on a small held-out split, costs minutes rather than
+GPU-days, and leaves the network untouched---which matters when the network is a
+frozen foundation backbone or a certified artefact that cannot be
+retrained~\cite{guo2017calibration,kull2019beyond}. The literature that developed
+these methods, however, is organised around a different target. Expected
+calibration error (ECE) asks whether confidence matches accuracy \emph{on average
+within confidence bands}; selective risk asks whether confidence \emph{orders} the
+errors. The two coincide in the ideal case and come apart in practice, because a
+monotone transform of the confidence score leaves every risk--coverage curve
+unchanged while moving ECE (Proposition~\ref{prop:inv}).
+
+This paper asks what is available to a post-hoc method if it optimises for
+ordering rather than for average agreement, and the answer starts from what the
+frozen model already computes. A linear head reduces a $d$-dimensional penultimate
+representation to a handful of logits, discarding everything about the geometry of
+that representation---which regions are dense, which sit near a decision boundary,
+which are isolated. A layer that reads the latent vector directly can recover part
+of that geometry and say something the softmax cannot. We build such a layer,
+APEX, from three kernel experts of deliberately different inductive bias fitted on
+a low-dimensional projection of the latent space, and mix their posteriors with
+the original softmax. The construction is what is new: the components are
+individually standard, but stacking them over a shared subspace and
+gating the base model on its own confidence yields a score that ranks errors far
+better than any of its parts. Our contributions are four. We give \textbf{a post-hoc fusion layer for frozen
+backbones} that reduces AURC by 44.3\% and wins all 18 dataset $\times$ backbone
+configurations against each of six baselines, at the smallest $p$-value the
+Wilcoxon test can return at $n=18$. We establish \textbf{a separation between two
+reliability criteria}, proving selective risk invariant under monotone
+reparametrisation where ECE is not, and measuring the gap: in 15 of 18
+configurations the lowest-ECE method is not the lowest-AURC one. We report our own
+ECE plainly, including where a baseline beats it. We show \textbf{the objective governs calibration}---refitting the same
+experts under a focal objective instead of the strictly proper one costs
+$1.8\times10^{-2}$ ECE and buys nothing. And we work from \textbf{an audited
+corpus}: we hash every image before use and report what we removed, 1{,}337 files
+including 798 segmentation masks a file glob had been loading as ultrasound
+scans.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{plots/fig1_architecture.pdf}
+\caption{APEX in full. The backbone and its linear head are frozen; everything to
+the right of the dashed boundary is fitted post-hoc on held-out splits and adds no
+gradient step to the network. Latent vector and descriptor block are projected to a
+shared 64-dimensional subspace by a truncated SVD, three kernel experts are
+evaluated on it, and their posteriors are mixed with the base softmax under a gate
+that discounts the base model exactly when the base model is unsure.}
+\label{fig:arch}
+\end{figure*}
+
+\section{Background}
+
+\subsection{Post-hoc calibration}
+Temperature scaling divides the logits by one learned scalar and is the standard
+reference point, being both effective and unable to change any
+prediction~\cite{guo2017calibration}. Vector and matrix scaling generalise it to
+per-class affine maps, isotonic regression fits a monotone transform per
+class~\cite{zadrozny2002transforming}, and Dirichlet calibration places a
+regularised log-linear model on the simplex~\cite{kull2019beyond}. Across the
+family the map acts on the model's own output and is fitted to a criterion
+evaluated on that output alone.
+
+\subsection{Measuring calibration}
+ECE bins predictions by confidence and averages the gap between confidence and
+accuracy~\cite{naeini2015obtaining}. Binning makes the estimate optimistic---errors
+of opposite sign cancel inside a bin---which motivates debiased
+estimators~\cite{kumar2019verified} and class-wise
+variants~\cite{nixon2019measuring}. Strictly proper scoring rules, Brier and
+log-loss, avoid binning and are minimised only by the true conditional
+distribution~\cite{brier1950verification,gneiting2007strictly}. We report all of
+these and treat the proper scores as primary evidence on probability quality.
+
+\subsection{Selective prediction and stacking}
+Selective classification pairs a predictor with a rejection
+rule~\cite{elyaniv2010foundations}. Sweeping the threshold traces risk against
+coverage; the area under that curve (AURC) summarises how well the confidence
+score ranks errors~\cite{geifman2017selective}; its excess form subtracts the
+value an oracle ranking would attain. Learned reject options such as
+SelectiveNet~\cite{geifman2019selectivenet} require training, which a frozen
+backbone rules out; maximum softmax probability remains the standard training-free
+baseline~\cite{hendrycks2017baseline}. APEX is a stacked
+generalisation~\cite{wolpert1992stacked} whose base learners see a projection of
+the frozen latent space rather than the raw image, and whose meta-model is a gated
+convex combination fitted under a strictly proper rule.
+
+\section{Method}
+
+\subsection{Setting and notation}
+Fig.~\ref{fig:arch} shows the construction end to end; this section defines it.
+Let $f$ be a trained classifier over $K$ classes with fixed parameters. For an
+image $X_i$ we read the penultimate representation
+$\mathbf{z}_i \in \mathbb{R}^{d}$ and the softmax output
+$\mathbf{p}^{\mathrm{b}}_i \in \Delta^{K-1}$, and compute a 62-dimensional
+descriptor vector $\mathbf{m}_i$ (intensity statistics, grey-level co-occurrence
+features, local binary patterns, shape moments, wavelet energies). Labelled data is
+split three ways: $\mathcal{D}_{\mathrm{fit}}$ for the experts,
+$\mathcal{D}_{\mathrm{cal}}$ for the mixture weights, and an evaluation fold no
+component ever sees.
+
+\subsection{A shared subspace for heterogeneous features}
+Latent coordinates and descriptors live on incompatible scales, so we standardise
+the concatenation $\mathbf{w}_i = [\mathbf{z}_i ; \mathbf{m}_i]$ and project it to
+a common subspace,
+\begin{equation}
+\mathbf{u}_i \;=\; \Phi\!\left( \mathbf{w}_i \right),
+\qquad \Phi : \mathbb{R}^{d+62} \rightarrow \mathbb{R}^{r},
+\label{eq:proj}
+\end{equation}
+where $\Phi$ standardises each coordinate and then applies a truncated singular
+value decomposition to $r = 64$ components, fitted on $\mathcal{D}_{\mathrm{fit}}$
+alone. The projection is linear; every nonlinearity in APEX lives in the experts.
+Compression is not the point: kernel machines degrade in high dimension, and
+$r \ll d$ is what makes the RBF bandwidth meaningful.
+
+\subsection{Three experts with different inductive biases}
+On $\mathbf{u}$ we fit three probabilistic classifiers chosen so their errors are
+unlikely to coincide. An RBF support vector machine responds to local density with
+a smooth, globally regularised boundary; a cubic-polynomial SVM captures low-order
+curvature the RBF kernel smooths away; a $k$-nearest-neighbour classifier is purely
+local, and asks what a linear head cannot---are this sample's neighbours of one
+class or of several? Both SVMs use $C=1$, with the scaled RBF bandwidth and degree
+three respectively, and turn margins into posteriors by Platt
+scaling~\cite{platt1999probabilistic}; the $k$-NN posterior is the
+inverse-distance-weighted vote of the $k=5$ nearest neighbours. We write them $\mathbf{p}^{\mathrm{rbf}}_i$,
+$\mathbf{p}^{\mathrm{poly}}_i$, $\mathbf{p}^{\mathrm{knn}}_i$.
+
+\subsection{Fusion and the confidence gate}
+The fused posterior is a convex combination of the base softmax and the three
+experts,
+\begin{equation}
+\hat{\mathbf{p}}^{\,\circ}_i \;=\; w_1\,\mathbf{p}^{\mathrm{b}}_i \;+\; w_2\,\mathbf{p}^{\mathrm{rbf}}_i
+\;+\; w_3\,\mathbf{p}^{\mathrm{poly}}_i \;+\; w_4\,\mathbf{p}^{\mathrm{knn}}_i,
+\label{eq:fuse}
+\end{equation}
+with $w_j \ge 0$, $\sum_j w_j = 1$. Fixed weights trust the base model equally on
+the cases it understands and the cases it does not, so we make the first weight a
+function of its own confidence. Writing $c_i = \max_k p^{\mathrm{b}}_{ik}$ and
+fixing a threshold $\tau$,
+\begin{equation}
+\tilde{w}_1(c_i) \;=\;
+\begin{cases}
+w_1, & c_i \ge \tau,\\[2pt]
+\lambda\,w_1, & c_i < \tau,
+\end{cases}
+\qquad 0 < \lambda < 1,
+\label{eq:gate}
+\end{equation}
+and the mass $\left(1-\lambda\right) w_1$ freed below the threshold is
+redistributed uniformly across the experts. The gated predictor
+$\hat{\mathbf{p}}_i$ is Eq.~\ref{eq:fuse} with $w_1$ replaced by
+$\tilde{w}_1(c_i)$, and stays on the simplex. The gate is crude on purpose: it does
+not work out which expert is right, it withdraws trust from the base model where
+the base model has already said it has none. We use $\tau = 0.85$,
+$\lambda = 0.20$ throughout; Section~\ref{sec:ablation} shows the result is
+insensitive to $\tau$.
+
+\subsection{Fitting the weights}
+The weights are obtained on $\mathcal{D}_{\mathrm{cal}}$ by minimising negative
+log-likelihood,
+\begin{equation}
+\mathbf{w}^{\star} \;=\; \arg\min_{\mathbf{w} \in \Delta^{3}}
+\; -\frac{1}{|\mathcal{D}_{\mathrm{cal}}|}
+\sum_{i \in \mathcal{D}_{\mathrm{cal}}} \log \hat{p}^{\,\circ}_{i, y_i},
+\label{eq:nll}
+\end{equation}
+a convex problem in $\mathbf{w}$. The objective is the \emph{ungated} mixture:
+keeping the threshold out of it preserves convexity, and the gate, which only
+redistributes a fixed fraction of $w_1$, is applied at inference with the weights
+so obtained. Negative log-likelihood is a strictly proper scoring rule, so its
+minimiser over a well-specified family is the true conditional
+distribution~\cite{gneiting2007strictly}. Objectives built to sharpen decisions
+rather than to score probabilities---focal loss being the common
+example~\cite{mukhoti2020calibrating}---carry no such guarantee, and
+Section~\ref{sec:ablation} measures what substituting one costs. APEX adds no
+gradient step to the backbone: fitting takes under a minute per configuration on
+CPU for our largest dataset, and inference adds three kernel evaluations and a
+weighted sum.
+
+\section{Experimental protocol}
+
+\subsection{Data}
+Six public corpora, one per modality, 32{,}251 images in total after the audit
+below: blood smear microscopy (12{,}513 images, 4
+classes)~\cite{mooney2018blood}, brain MRI (7{,}013, 4)~\cite{nickparvar2021brain},
+chest radiography (3{,}994, 2)~\cite{kermany2018identifying}, endoscopy (3{,}990,
+4)~\cite{heartzhacker2023medical}, retinal OCT (3{,}963,
+4)~\cite{kermany2018identifying} and breast ultrasound
+(778, 3)~\cite{aldhabyani2020dataset}. Every image carries a matched descriptor
+row on all six.
+
+\subsection{Data hygiene}
+\label{sec:hygiene}
+Duplicate and mislabelled files inflate cross-validated results silently, because
+copies of one image land in different folds and the model is then tested on
+material it memorised~\cite{barz2020purging}. We hashed all 33{,}588 candidate
+files and quarantined 1{,}337 (4.0\%): 798 binary segmentation masks a
+file-extension glob had been loading as ultrasound scans, 531 byte-identical
+copies within a class, and both members of the four groups in which one image
+appeared under two labels. The masks were the most consequential: they halved the
+nominal ultrasound corpus and made its classes separable by silhouette alone. Every
+number here is computed after that removal.
+
+\subsection{Backbones and heads}
+We use three architecture families of different design: ViT-S/16 ($d=384$)~\cite{dosovitskiy2020image},
+ConvNeXt-T ($d=768$)~\cite{liu2022convnet} and MobileNetV3-L ($d=1280$)~\cite{howard2019searching}.
+Backbones are frozen at their ImageNet weights and only a linear head with dropout
+is trained, ten epochs per fold, the checkpoint selected on an inner split so the
+evaluation fold is never used for model selection.
+
+\subsection{Protocol and metrics}
+Every dataset $\times$ backbone pair is evaluated under stratified five-fold
+cross-validation, giving 90 trained heads and 18 paired configurations; within each
+fold the training portion splits 80/20 into $\mathcal{D}_{\mathrm{fit}}$ and
+$\mathcal{D}_{\mathrm{cal}}$; all fifteen metrics appear in
+Table~\ref{tab:allmetrics}. Isotonic regression is a step function and ties 71\%
+of its confidences, so we report AURC as the expectation over tie-breaking, which
+is independent of input order and coincides with the plain definition when
+confidences are distinct. Baselines are the uncalibrated softmax, MC dropout
+with 30 stochastic passes~\cite{gal2016dropout}, temperature and vector
+scaling~\cite{guo2017calibration}, isotonic
+regression~\cite{zadrozny2002transforming} and Dirichlet
+calibration~\cite{kull2019beyond}. Following standard practice for multi-dataset
+comparison~\cite{demsar2006statistical}, configurations are the unit of analysis
+and methods are compared with the two-sided Wilcoxon signed-rank
+test~\cite{wilcoxon1945individual}. MC dropout's stochasticity was verified rather
+than assumed: the passes differed in all 90 folds.
+
+\input{tab2}
+
+\section{Results}
+
+\subsection{Selective risk}
+Averaged over the 18 configurations (Table~\ref{tab:headline}), APEX reduces AURC
+from $4.86\times10^{-2}$ to $2.71\times10^{-2}$---44.3\% against the uncalibrated
+softmax, 39.0\% against the strongest baseline---and risk at 90\% coverage from
+10.71\% to 6.52\%. The margin is not carried by a subset of easy cases.
+Fig.~\ref{fig:rc}(a) shows the mean risk--coverage curve below every baseline at
+every coverage, the gap growing from 0.7 points of risk at 30\% coverage to 3.5
+points at 90\%---the range a triage system would use.
+Fig.~\ref{fig:rc}(b) makes the comparison as strict as it can be made---APEX
+against whichever baseline was best \emph{for that configuration}---and all
+eighteen points fall below the diagonal. Fig.~\ref{fig:rc}(c) shows the effect in
+every modality, from 18\% on endoscopy to 82\% on blood smears.
+
+The proper scores move with it: Brier falls 30.6\% and NLL 30.2\%, each 18/18
+against all six baselines at $p = 7.6\times10^{-6}$. Balanced accuracy rises 4.18
+points, 18/18 against five of the six and 17/18 against Dirichlet
+($p = 2.3\times10^{-5}$). Because APEX may change the arg-max this is a genuine
+accuracy gain rather than a rescaling---obtained with the backbone frozen.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{plots/fig2_selective.pdf}
+\caption{Selective performance. (a) Mean risk--coverage curve over the 18
+configurations, traced from the per-sample predictions of all 90 folds; the band
+is one standard error. (b) Per-configuration AURC against the best baseline
+\emph{for that configuration}. (c) AURC per modality, averaged over the three
+backbones. Panels (b) and (c) use the same per-fold values as
+Table~\ref{tab:headline}.}
+\label{fig:rc}
+\end{figure*}
+
+\subsection{Calibration is a different axis}
+ECE does not follow. APEX cuts it from $4.95\times10^{-2}$ to
+$3.39\times10^{-2}$, but the calibrators land in the same place---$3.28$, $3.11$
+and $3.47\times10^{-2}$ for temperature, vector and isotonic scaling---and the
+paired tests separate none of them from APEX ($p = 0.37$, $0.13$, $0.87$).
+Dirichlet calibration reaches $2.99\times10^{-2}$ and beats APEX in 12 of the 18
+configurations ($p = 0.030$). APEX also has the highest maximum calibration error
+of anything we ran. Fig.~\ref{fig:cal}(a) shows why: APEX sits above the diagonal
+across the whole range, predicting less confidence than it earns, while Dirichlet
+tracks it closely. Under-confidence is the direction a triage system can live with, but ECE charges
+for it either way.
+What APEX gets right is the global level: its average confidence is within $0.9$
+points of its accuracy, closer than any other method. The ECE it pays comes from
+spread inside the bins, not from being systematically too sure of itself.
+
+The divergence has a structural reason that does not depend on our data.
+
+\begin{proposition}
+\label{prop:inv}
+Let $g$ be strictly increasing on $[0,1]$. Replacing every confidence $c_i$ by
+$g(c_i)$ leaves the risk--coverage curve unchanged, and with it AURC, E-AURC and
+selective risk at every coverage. Expected calibration error has no such
+invariance.
+\end{proposition}
+
+\begin{IEEEproof}
+At coverage $\kappa$ the curve reports the empirical error over the
+$\lceil \kappa n\rceil$ samples of largest confidence, so it depends on the
+$c_i$ only through the ordering they induce, which a strictly increasing $g$
+preserves. ECE compares confidence \emph{values} with accuracies,
+$\sum_b (n_b/n)|\bar c_b - \bar a_b|$, so it moves when those values move.
+\end{IEEEproof}
+
+The prediction is exact and it holds numerically: applying $c^2$, $\sqrt{c}$,
+$\sigma(6(c-\tfrac12))$ and $\tfrac12+\tfrac12c$ to the uncalibrated confidences
+of all 18 configurations leaves AURC identical in every digit, largest deviation
+$0$, while ECE ranges from $4.95\times10^{-2}$ to $1.44\times10^{-1}$. A
+rescaling that cannot change which cases a system defers moves the calibration
+error it reports by a factor of $2.9$.
+
+The consequence shows up in the rankings, and Fig.~\ref{fig:cal}(b)
+quantifies it. Across the 18 configurations APEX holds mean rank 1.00
+on AURC, on Brier and on NLL---it is first in every single configuration on all
+three---and mean rank 3.78 on ECE, behind Dirichlet, vector scaling and temperature
+scaling. Choosing
+a method by calibration error would have selected the wrong method for deferral in
+15 of the 18 configurations. A post-hoc layer should be evaluated against the
+criterion it will be deployed under, and for abstention that criterion is the
+ordering, not the average gap.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{plots/fig3_calibration.pdf}
+\caption{Calibration and ordering are not the same property. (a) Reliability with
+equal-mass bins formed inside each configuration and averaged over the 18, the
+same way the ECE column of Table~\ref{tab:headline} is computed; band is one
+standard error. (b) Mean rank over the 18 configurations on ECE and on AURC; APEX
+is first on AURC in every configuration and mid-field on ECE, and the other
+methods reorder between the two axes as well.}
+\label{fig:cal}
+\end{figure*}
+
+\subsection{What each component contributes}
+\label{sec:ablation}
+Fig.~\ref{fig:abl}(a) removes one part at a time and re-fits. The RBF expert is
+load-bearing: without it AURC rises by $2.9\times10^{-3}$ and ECE by
+$9.0\times10^{-3}$ ($p<10^{-3}$ for both). The $k$-NN expert is second for ordering
+($+1.5\times10^{-3}$ AURC, $p=2.5\times10^{-4}$) and costs a little calibration
+error to include---a component that helps the ranking while mildly hurting the
+average gap, the same asymmetry seen at the method level. The cubic SVM and the
+descriptor block each give a small but significant AURC improvement
+($p = 1.6\times10^{-2}$ and $1.6\times10^{-3}$). The gate's contribution is
+specific: it improves ECE reliably ($p=8.4\times10^{-4}$) but leaves AURC
+unchanged ($p = 0.20$).
+
+No expert reproduces the fused result alone: the RBF SVM, the strongest, reaches
+AURC $3.12\times10^{-2}$ against $2.71\times10^{-2}$ for the fusion
+($p = 1.5\times10^{-5}$), and an equal-weight blend without gating or fitted
+weights reaches $2.85\times10^{-2}$.
+
+The largest single effect is the objective. Refitting the same experts and gate
+under a focal loss instead of Eq.~\ref{eq:nll} raises ECE by $1.8\times10^{-2}$
+and NLL by $1.3\times10^{-2}$ ($p = 7.6\times10^{-6}$ for both) while leaving
+AURC and accuracy statistically unchanged: the fused probabilities are only as
+honest as the rule used to fit them. The gate threshold is not tuned---sweeping
+$\tau$ over $[0.60,0.95]$ moves AURC by 0.5\% of its own value
+(Fig.~\ref{fig:abl}(b)).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{plots/fig4_ablation.pdf}
+\caption{(a) Change in AURC and ECE when one component is removed; bars to the
+right are degradations. Wilcoxon: $^{**}p<0.01$, $^{*}p<0.05$. (b) $\tau$ is not a
+tuned parameter---AURC varies by 0.5\% of its own value across the sweep.}
+\label{fig:abl}
+\end{figure}
+
+\subsection{Full metric detail}
+Table~\ref{tab:allmetrics} reports all fifteen metrics per backbone. Two patterns
+hold across architectures: the selective and proper scores improve for ViT,
+ConvNeXt and MobileNetV3 alike, with the largest absolute gains on the weakest
+backbone, while maximum calibration error and over-confidence error are the two
+metrics on which APEX trails even the uncalibrated model on every backbone.
+
+\input{tab1}
+
+\section{Discussion}
+
+The reason is simple. A frozen linear head is a projection, and projections lose
+information: two samples mapped to nearly the same logits can sit
+in very different neighbourhoods of the latent space---one deep inside a class
+cluster, the other on a boundary---and the softmax cannot express the difference.
+The kernel experts can, an RBF machine reading local density and a $k$-NN
+classifier neighbourhood purity, so fusing their posteriors with the softmax
+reinstates a signal about \emph{which} predictions are unsafe.
+
+It also explains the asymmetry. A parametric calibrator does the opposite of what
+APEX does---temperature scaling provably cannot change any prediction, so it moves
+ECE while leaving the ordering untouched. Proposition~\ref{prop:inv} is the formal
+statement of that separation, and it is why the two families are complementary:
+composing a scaling layer on a fusion layer is a natural next step we have not
+tested.
+
+The numbers translate directly: at a fixed 90\% coverage selective risk falls from
+10.71\% to 6.52\%, so roughly two in five of the errors that would have reached a
+clinician are routed for review instead, at no change to the network.
+
+\section{Limitations}
+\label{sec:limits}
+Four limitations bound these claims. The backbones are frozen and only linear heads
+trained; we have not shown the gains survive full fine-tuning, where a stronger
+head may already encode some of the geometry the experts recover. That is the most
+important experiment we did not run.
+
+Every result is from a single seed---fold assignment, the fit/calibration split
+and head initialisation are fixed---so the 18-of-18 margins carry unmeasured seed
+variance. The breast ultrasound corpus is small (778 images after the audit) and
+drives the widest fold-to-fold spread. All six corpora are public, and no external
+or prospective validation was performed.
+
+Finally, APEX does not improve expected calibration error over the best parametric
+baselines and is worse than one of them. A deployment that needs a calibrated
+probability should use a calibrator, or compose one with APEX; our claim is
+confined to the ordering of confidence and the abstention decisions that depend on
+it.
+
+\section{Conclusion}
+
+We asked what a post-hoc layer can do for a frozen medical image classifier built
+for abstention rather than average calibration. Reading the latent representation
+the classifier discards, fitting three kernel experts over a shared projection of
+it and mixing their posteriors with the softmax under a confidence-conditional
+gate reduces AURC by 44.3\% and wins all 18 configurations against each of six
+baselines, with Brier and log-likelihood doing the same and balanced accuracy
+winning at least 17 of 18. Expected calibration error does not improve beyond what
+parametric calibrators achieve---the consequence of optimising a different
+property, not a shortfall to explain away. Selective risk is invariant to monotone
+rescaling where ECE is not, and the criteria disagree about which method to deploy
+in 15 of 18 cases; the criterion should be chosen before the method is.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

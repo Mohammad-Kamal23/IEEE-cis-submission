@@ -1,0 +1,101 @@
+{
+ "BLOODCELL": {
+  "domain": "BLOODCELL",
+  "root": "C:\\Users\\homeb\\Desktop\\research\\BloodCell",
+  "n_images": 12513,
+  "classes": [
+   "EOSINOPHIL",
+   "LYMPHOCYTE",
+   "MONOCYTE",
+   "NEUTROPHIL"
+  ],
+  "n_classes": 4,
+  "duplicates_remaining": 0,
+  "n_matched": 12513,
+  "descriptor_dim": 62,
+  "descriptor_key": "(class, image_id)",
+  "built": "2026-08-24T14:07:40"
+ },
+ "BRAINTUMOR": {
+  "domain": "BRAINTUMOR",
+  "root": "C:\\Users\\homeb\\Desktop\\research\\BRAINTUMOR",
+  "n_images": 7013,
+  "classes": [
+   "glioma",
+   "meningioma",
+   "notumor",
+   "pituitary"
+  ],
+  "n_classes": 4,
+  "duplicates_remaining": 0,
+  "n_matched": 7013,
+  "descriptor_dim": 62,
+  "descriptor_key": "(class, image_id)",
+  "built": "2026-08-24T14:07:41"
+ },
+ "CHEST-XRAY": {
+  "domain": "CHEST-XRAY",
+  "root": "C:\\Users\\homeb\\Desktop\\research\\CHEST-XRAY",
+  "n_images": 3994,
+  "classes": [
+   "NORMAL",
+   "PNEUMONIA"
+  ],
+  "n_classes": 2,
+  "duplicates_remaining": 0,
+  "n_matched": 3994,
+  "descriptor_dim": 62,
+  "descriptor_key": "(class, image_id)",
+  "built": "2026-08-24T14:07:42"
+ },
+ "ENDOSCOPIC": {
+  "domain": "ENDOSCOPIC",
+  "root": "C:\\Users\\homeb\\Desktop\\research\\ENDOSCOPIC",
+  "n_images": 3990,
+  "classes": [
+   "Diverticulosis",
+   "Neoplasm",
+   "Peritonitis",
+   "Ureters"
+  ],
+  "n_classes": 4,
+  "duplicates_remaining": 0,
+  "n_matched": 3990,
+  "descriptor_dim": 62,
+  "descriptor_key": "(class, image_id)",
+  "built": "2026-08-24T14:07:43"
+ },
+ "RETINAL": {
+  "domain": "RETINAL",
+  "root": "C:\\Users\\homeb\\Desktop\\research\\RetinalOCT",
+  "n_images": 3963,
+  "classes": [
+   "CNV-samples",
+   "DME-samples",
+   "Drusen-samples",
+   "Normal-samples"
+  ],
+  "n_classes": 4,
+  "duplicates_remaining": 2,
+  "n_matched": 3963,
+  "descriptor_dim": 62,
+  "descriptor_key": "(class, image_id)",
+  "built": "2026-08-24T14:07:43"
+ },
+ "ULTRASOUND": {
+  "domain": "ULTRASOUND",
+  "root": "C:\\Users\\homeb\\Desktop\\research\\BreastUltrasound",
+  "n_images": 778,
+  "classes": [
+   "benign",
+   "malignant",
+   "normal"
+  ],
+  "n_classes": 3,
+  "duplicates_remaining": 0,
+  "n_matched": 778,
+  "descriptor_dim": 62,
+  "descriptor_key": "(class, image_id)",
+  "built": "2026-08-24T14:07:44"
+ }
+}

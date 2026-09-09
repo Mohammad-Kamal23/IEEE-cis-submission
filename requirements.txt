@@ -1,0 +1,5 @@
+# Everything reproduce.py needs. CPU only.
+numpy>=1.24
+scipy>=1.10
+scikit-learn>=1.3
+matplotlib>=3.7

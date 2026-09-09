@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+_reproduced/
+*.aux
+*.log
+*.out
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+.DS_Store
+repro.pid
+repro*.log
+rq1_invariance.json

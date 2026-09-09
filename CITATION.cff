@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: "APEX: Latent-Space Kernel Fusion for Selective Prediction with Frozen Medical Image Classifiers"
+message: "If you use this software or its results, please cite the paper."
+type: software
+authors:
+  - given-names: Mohammad Kamal
+    family-names: Abdulaziz
+    affiliation: "Department of Data Science and Artificial Intelligence, The University of Jordan"
+    email: moh0217526@ju.edu.jo
+  - given-names: Rizik
+    family-names: Al-Sayyed
+    affiliation: "Department of Business Information Technology, The University of Jordan"
+    email: r.alsayyed@ju.edu.jo
+date-released: 2026-09-09
+license: MIT
+keywords:
+  - selective prediction
+  - confidence calibration
+  - post-hoc methods
+  - medical image analysis
+  - kernel methods
+  - proper scoring rules
