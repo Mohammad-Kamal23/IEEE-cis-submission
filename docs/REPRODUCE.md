@@ -29,7 +29,9 @@ What it checks, in order:
 | 2 | Rebuilds Table I | matches the paper |
 | 3 | Rebuilds Table II — Wilcoxon signed-rank, win counts, mean ranks | 18/18 at p = 7.6e-06 |
 | 4 | Runs `analysis/verify_claims.py` — 69 assertions re-deriving every number quoted in the paper, in four rounds | `ALL CLAIMS VERIFIED` |
-| 5 | Regenerates `tab1.tex`, `tab2.tex` and all four figures | files appear in `_reproduced/` |
+| 5 | Verifies Proposition 1 numerically | AURC deviation `0.00e+00` |
+| 6 | Regenerates `tab1.tex`, `tab2.tex` and all four figures | files appear in `_reproduced/` |
+| 7 | Diffs your generated tables and statistics against `reference_outputs/` | every line `exact match` / `numeric match` |
 
 Exit status is 0 only if all of it passes.
 
@@ -129,8 +131,32 @@ artefact keyed to the old folds is invalid.
 | Artefact | Size | Needed for | Where |
 |---|---|---|---|
 | `features/` — cached latents, logits, softmax, MC probabilities, 90 files | 785 MB | Level 2 | supplementary archive |
-| `weights/` — 90 trained classification heads | 8.2 GB | skipping training in Level 3 | supplementary archive |
+| `weights/` — the 90 full 107 MB checkpoints | 8.2 GB | bit-exact archival copy | supplementary archive |
 | the six image corpora | — | Level 3 from scratch | original providers, see [DATASETS.md](DATASETS.md) |
+
+## Comparing your results with ours
+
+Step 7 exists so you do not have to eyeball anything. `reference_outputs/` holds
+`tab1.tex`, `tab2.tex`, `stats.json`, `stats2.json`, `rc.json`, `rel.json` and
+`rq1_invariance.json` exactly as our run produced them. Yours land in
+`_reproduced/`. The `.tex` tables are compared as text, character for character;
+the JSON is compared structurally with a 1e-9 tolerance on floats.
+
+Figures are deliberately not byte-compared: matplotlib writes a creation
+timestamp into PDF and PNG output, so identical plots are different files. The
+numbers behind every panel are in the JSON, which is compared exactly.
+
+If a comparison fails, the mismatch is real and worth reporting — please open an
+issue with your Python and library versions.
+
+## Reconstructing the trained models
+
+`weights_heads/heads.npz` holds all 90 trained models in 5 MB, because the frozen
+backbones are byte-identical across every checkpoint and only 954,823 numbers ever
+changed. `python src/load_trained_model.py` prints what is stored;
+`load_model(arch, domain, fold)` rebuilds one, verifying a SHA-256 fingerprint of
+the frozen backbone against the manifest so an upstream weight change is caught
+rather than silently changing your results.
 
 ## Environment
 

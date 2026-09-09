@@ -1,5 +1,5 @@
-# Additionally required to retrain the heads and re-extract features
-# (src/apex_pipeline.py stages: train, extract). A CUDA GPU is assumed.
+# Additionally required to retrain the heads, re-extract features, or rebuild a
+# trained model from weights_heads/ (src/load_trained_model.py).
 -r requirements.txt
 torch>=2.0
 torchvision>=0.15

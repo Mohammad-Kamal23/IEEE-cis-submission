@@ -9,6 +9,6 @@ _reproduced/
 *.fdb_latexmk
 *.synctex.gz
 .DS_Store
-repro.pid
-repro*.log
-rq1_invariance.json
+/repro.pid
+/repro*.log
+/rq1_invariance.json

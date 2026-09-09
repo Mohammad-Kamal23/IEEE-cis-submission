@@ -75,9 +75,26 @@ No GPU. No trained weights. No image data. About a minute.
    (`analysis/verify_claims.py`, 69 assertions across four rounds), including the
    figures quoted in the abstract, the ablation deltas, the τ sweep and the
    per-dataset reductions.
-5. Redraw all four figures.
+5. Verify **Proposition 1** numerically (`analysis/rq1_invariance.py`).
+6. Redraw all four figures.
+7. **Compare what you just generated against our committed reference outputs** —
+   `reference_outputs/` holds the tables and statistics files our run produced, and
+   step 7 diffs yours against them. This is the direct answer to "do I get the same
+   thing you got?"
 
-Exit status is 0 only if every check passes.
+Exit status is 0 only if every check passes. A clean run ends with:
+
+```
+  [OK ] every recomputed metric matches the published CSV     max |Δ| = 0.000e+00
+  ...
+  [OK ] tab1.tex                 exact match
+  [OK ] tab2.tex                 exact match
+
+  ALL CHECKS PASSED -- every published number was regenerated from
+  the committed predictions, and all four figures were redrawn.
+```
+
+87 checks in total.
 
 `python analysis/rq1_invariance.py` separately verifies Proposition 1 by applying
 five strictly increasing maps to the uncalibrated confidences of all 18
@@ -113,10 +130,46 @@ results/
   duplicate_report.json       hash-level duplicate analysis
   repair_report.json          frozen per-dataset index
   RQ_RESULTS.md               mechanism experiments
+reference_outputs/      what our run produced; step 7 diffs yours against it
+weights_heads/
+  heads.npz             all 90 trained models, 5 MB (see below)
+  MANIFEST.json         architectures, trained tensors, backbone fingerprints
 figures/                4 figures, PDF and PNG
-paper/                  final PDF, LaTeX source, bibliography, IEEEtran files
+paper/                  final PDF, LaTeX source, bibliography, IEEEtran files,
+                        and APEX_overleaf.zip ready to drop into Overleaf
 docs/                   datasets, data audit, reproduction guide
 ```
+
+## The trained models, in 5 MB
+
+The 90 checkpoints are 107 MB each — 9.4 GB — and almost all of it is redundant.
+The backbones are frozen, and we checked rather than assumed it: across all 90
+checkpoints every backbone tensor is **byte-identical**. What actually changed
+during training is 954,823 numbers.
+
+`weights_heads/heads.npz` stores exactly that, and `src/load_trained_model.py`
+rebuilds any model from it:
+
+```python
+from src.load_trained_model import load_model
+model = load_model("ConvNeXt", "BLOODCELL", fold=1)
+```
+
+It fetches the ImageNet backbone through `timm`/`torchvision`, loads the stored
+tensors, and recomputes a SHA-256 fingerprint of the frozen part to confirm it
+matches what was there during training — so a future change to the upstream
+pretrained weights is reported rather than silently producing different numbers.
+
+One honest detail. For ViT and ConvNeXt only the classifier weight and bias ever
+change. MobileNetV3 uses batch normalisation, whose running statistics adapt
+during training even with every weight frozen, so its 138 BatchNorm buffers are
+stored too. Those updates come only from the inner training split and never from
+an evaluation fold — we verified this in the training loop — so they carry no
+leakage, but they are part of the trained model and are needed to reproduce it.
+The paper states this in Section IV-C.
+
+Requires `torch` and `timm` (`pip install -r requirements-full.txt`). **None of
+this is needed to reproduce the results** — that is what `results/probs/` is for.
 
 ## Data integrity
 

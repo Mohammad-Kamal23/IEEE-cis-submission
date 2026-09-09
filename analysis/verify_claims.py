@@ -197,15 +197,33 @@ if not _PDF or not _os.path.exists(_PDF):
                _os.path.join(_ROOT,"paper","APEX_paper_6pages.pdf"),
                _os.path.join(_ROOT,"paper","main.pdf")):
         if _os.path.exists(_c): _PDF=_c; break
-txt=subprocess.run(["pdftotext","-layout",_PDF,"-"],capture_output=True,text=True).stdout if _PDF else ""
-if not txt:
-    print("  (paper PDF not found -- skipping the cross-reference checks)")
-for n in (1,2,3,4):
-    c3(f"Figure {n} is referenced in the body text",
-       len(re.findall(rf"Fig\. {n}[^0-9]", txt))>1, f"{len(re.findall(rf'Fig. {n}[^0-9]', txt))} mentions")
-for t in ("I","II"):
-    c3(f"Table {t} is referenced in the body text",
-       len(re.findall(rf"Table {t}\b", txt))>1)
+# These checks read the compiled PDF, so they need poppler's pdftotext. That is
+# an optional convenience, not a dependency of the results: if it is absent the
+# checks are skipped with a note rather than failing the run.
+txt = ""
+_why = ""
+if not _PDF:
+    _why = "paper PDF not found"
+else:
+    try:
+        txt = subprocess.run(["pdftotext", "-layout", _PDF, "-"],
+                             capture_output=True, text=True).stdout
+        if not txt.strip():
+            _why = "pdftotext returned nothing"
+    except (FileNotFoundError, OSError):
+        _why = "pdftotext is not installed (poppler-utils)"
+
+if txt.strip():
+    for n in (1,2,3,4):
+        c3(f"Figure {n} is referenced in the body text",
+           len(re.findall(rf"Fig\. {n}[^0-9]", txt))>1,
+           f"{len(re.findall(rf'Fig. {n}[^0-9]', txt))} mentions")
+    for t in ("I","II"):
+        c3(f"Table {t} is referenced in the body text",
+           len(re.findall(rf"Table {t}\b", txt))>1)
+else:
+    print(f"  [ -- ] cross-reference checks skipped: {_why}")
+    print("         (optional; every numerical claim above was still verified)")
 
 print()
 print("FINAL ROUND PASSED" if ok3 else "*** FINAL ROUND FAILED ***")

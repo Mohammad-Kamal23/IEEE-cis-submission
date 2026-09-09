@@ -28,7 +28,7 @@ L.append("\\caption{All fifteen metrics per backbone, averaged over the six data
          "softmax; Dirichlet is the strongest baseline by mean rank on ECE, Brier and NLL. "
          "Arrows give the preferred direction; best of each block in bold.}")
 L.append("\\label{tab:allmetrics}")
-L.append("\\setlength{\\tabcolsep}{3.0pt}\\renewcommand{\\arraystretch}{0.78}")
+L.append("\\setlength{\\tabcolsep}{3.0pt}\\renewcommand{\\arraystretch}{0.74}")
 L.append("\\scriptsize")
 L.append("\\begin{tabular}{l c *{3}{ccc}}")
 L.append("\\toprule")
@@ -69,7 +69,7 @@ L.append("\\caption{Mean $\\pm$ standard deviation over the 18 dataset$\\,\\time
          "two-sided Wilcoxon $p$ against any single baseline; $7.6\\times10^{-6}$ is the smallest "
          "value the test can return at $n{=}18$.}")
 L.append("\\label{tab:headline}")
-L.append("\\setlength{\\tabcolsep}{4.0pt}\\renewcommand{\\arraystretch}{0.90}")
+L.append("\\setlength{\\tabcolsep}{4.0pt}\\renewcommand{\\arraystretch}{0.86}")
 L.append("\\footnotesize")
 L.append("\\begin{tabular}{l ccccccc}")
 L.append("\\toprule")

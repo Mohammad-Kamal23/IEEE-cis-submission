@@ -16,15 +16,14 @@
 
 \author{
 \IEEEauthorblockN{Mohammad Kamal Abdulaziz}
-\IEEEauthorblockA{\textit{Department of Data Science and Artificial Intelligence}\\
-\textit{The University of Jordan}\\
-Amman, Jordan \\
+\IEEEauthorblockA{\textit{Dept. of Data Science and Artificial Intelligence}\\
+\textit{King Abdullah II School of Information Technology}\\
+\textit{The University of Jordan}, Amman, Jordan \\
 moh0217526@ju.edu.jo}
 \and
 \IEEEauthorblockN{Rizik Al-Sayyed}
-\IEEEauthorblockA{\textit{Department of Business Information Technology}\\
-\textit{The University of Jordan}\\
-Amman, Jordan \\
+\IEEEauthorblockA{\textit{King Abdullah II School of Information Technology}\\
+\textit{The University of Jordan}, Amman, Jordan \\
 r.alsayyed@ju.edu.jo}
 }
 
@@ -45,11 +44,10 @@ and five-fold cross-validation (90 trained heads, 18 paired configurations,
 fifteen metrics), APEX lowers the area under the risk--coverage curve by 44.3\%
 and selective risk at 90\% coverage from 10.71\% to 6.52\%. AURC, Brier score and
 log-likelihood improve in all 18 configurations against each of six baselines at
-$p<10^{-4}$; balanced accuracy and selective risk in at least 17 of 18. Expected calibration error does not, and that asymmetry is
-the paper's main point: selective risk is invariant to monotone rescaling of
-confidence where calibration error is not, and in 15 of 18 configurations the
-method with the lowest calibration error is not the one with the lowest selective
-risk.
+$p<10^{-4}$. Expected calibration error does not, and that asymmetry is the point:
+selective risk is invariant to monotone rescaling of confidence where calibration
+error is not, and in 15 of 18 configurations the lowest-calibration-error method is
+not the lowest-selective-risk one.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -259,22 +257,24 @@ row on all six.
 
 \subsection{Data hygiene}
 \label{sec:hygiene}
-Duplicate and mislabelled files inflate cross-validated results silently, because
-copies of one image land in different folds and the model is then tested on
-material it memorised~\cite{barz2020purging}. We hashed all 33{,}588 candidate
-files and quarantined 1{,}337 (4.0\%): 798 binary segmentation masks a
-file-extension glob had been loading as ultrasound scans, 531 byte-identical
-copies within a class, and both members of the four groups in which one image
-appeared under two labels. The masks were the most consequential: they halved the
+Duplicate and mislabelled files inflate cross-validated results silently: copies
+of one image land in different folds and the model is tested on material it
+memorised~\cite{barz2020purging}. We hashed all 33{,}588 candidate files and
+quarantined 1{,}337 (4.0\%): 798 binary segmentation masks a file-extension glob
+had been loading as ultrasound scans, 531 byte-identical copies within a class,
+and both members of the four groups in which one image appeared under two labels. The masks were the most consequential: they halved the
 nominal ultrasound corpus and made its classes separable by silhouette alone. Every
 number here is computed after that removal.
 
 \subsection{Backbones and heads}
 We use three architecture families of different design: ViT-S/16 ($d=384$)~\cite{dosovitskiy2020image},
 ConvNeXt-T ($d=768$)~\cite{liu2022convnet} and MobileNetV3-L ($d=1280$)~\cite{howard2019searching}.
-Backbones are frozen at their ImageNet weights and only a linear head with dropout
-is trained, ten epochs per fold, the checkpoint selected on an inner split so the
-evaluation fold is never used for model selection.
+Every backbone parameter is held fixed at its ImageNet value and only a linear
+head with dropout is trained, ten epochs per fold, the checkpoint selected on an
+inner split so the evaluation fold is never used for model selection. One caveat,
+stated precisely: MobileNetV3 uses batch normalisation, so its running statistics
+adapt to the training split---never to an evaluation fold---while its weights stay
+frozen. ViT and ConvNeXt normalise per layer and are unaffected.
 
 \subsection{Protocol and metrics}
 Every dataset $\times$ backbone pair is evaluated under stratified five-fold
@@ -438,7 +438,7 @@ metrics on which APEX trails even the uncalibrated model on every backbone.
 \section{Discussion}
 
 The reason is simple. A frozen linear head is a projection, and projections lose
-information: two samples mapped to nearly the same logits can sit
+information: two samples with nearly the same logits can sit
 in very different neighbourhoods of the latent space---one deep inside a class
 cluster, the other on a boundary---and the softmax cannot express the difference.
 The kernel experts can, an RBF machine reading local density and a $k$-NN
@@ -452,9 +452,9 @@ statement of that separation, and it is why the two families are complementary:
 composing a scaling layer on a fusion layer is a natural next step we have not
 tested.
 
-The numbers translate directly: at a fixed 90\% coverage selective risk falls from
-10.71\% to 6.52\%, so roughly two in five of the errors that would have reached a
-clinician are routed for review instead, at no change to the network.
+The numbers translate directly: at 90\% coverage selective risk falls from 10.71\%
+to 6.52\%, so roughly two in five of the errors that would have reached a clinician
+are routed for review instead, at no change to the network.
 
 \section{Limitations}
 \label{sec:limits}
@@ -466,11 +466,11 @@ important experiment we did not run.
 Every result is from a single seed---fold assignment, the fit/calibration split
 and head initialisation are fixed---so the 18-of-18 margins carry unmeasured seed
 variance. The breast ultrasound corpus is small (778 images after the audit) and
-drives the widest fold-to-fold spread. All six corpora are public, and no external
-or prospective validation was performed.
+drives the widest fold-to-fold spread; all six corpora are public, with no
+external or prospective validation.
 
 Finally, APEX does not improve expected calibration error over the best parametric
-baselines and is worse than one of them. A deployment that needs a calibrated
+baselines and is worse than one of them. A deployment needing a calibrated
 probability should use a calibrator, or compose one with APEX; our claim is
 confined to the ordering of confidence and the abstention decisions that depend on
 it.
@@ -486,8 +486,8 @@ baselines, with Brier and log-likelihood doing the same and balanced accuracy
 winning at least 17 of 18. Expected calibration error does not improve beyond what
 parametric calibrators achieve---the consequence of optimising a different
 property, not a shortfall to explain away. Selective risk is invariant to monotone
-rescaling where ECE is not, and the criteria disagree about which method to deploy
-in 15 of 18 cases; the criterion should be chosen before the method is.
+rescaling where ECE is not, and the two disagree about which method to deploy in
+15 of 18 cases; the criterion should be chosen before the method is.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

@@ -1,0 +1,51 @@
+{
+ "maps": [
+  {
+   "map": "identity",
+   "mean_aurc": 0.048633373645600324,
+   "max_dev": 0.0,
+   "mean_ece": 0.049466564633351466,
+   "risk_curve_identical": true,
+   "n_reordered": 0
+  },
+  {
+   "map": "c^2",
+   "mean_aurc": 0.048633373645600324,
+   "max_dev": 0.0,
+   "mean_ece": 0.14415161300075402,
+   "risk_curve_identical": true,
+   "n_reordered": 0
+  },
+  {
+   "map": "sqrt(c)",
+   "mean_aurc": 0.048633373645600324,
+   "max_dev": 0.0,
+   "mean_ece": 0.052412392370807775,
+   "risk_curve_identical": true,
+   "n_reordered": 2
+  },
+  {
+   "map": "logistic(6(c-1/2))",
+   "mean_aurc": 0.048633373645600324,
+   "max_dev": 0.0,
+   "mean_ece": 0.05814787522250179,
+   "risk_curve_identical": true,
+   "n_reordered": 588
+  },
+  {
+   "map": "1/2 + c/2",
+   "mean_aurc": 0.048633373645600324,
+   "max_dev": 0.0,
+   "mean_ece": 0.06071913602279655,
+   "risk_curve_identical": true,
+   "n_reordered": 36
+  }
+ ],
+ "max_deviation": 0.0,
+ "ece_min": 0.049466564633351466,
+ "ece_max": 0.14415161300075402,
+ "ece_factor": 2.914122176650282,
+ "risk_curve_identical": true,
+ "n_positions_moved": 626,
+ "n_samples": 96753
+}

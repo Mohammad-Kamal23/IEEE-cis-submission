@@ -29,6 +29,7 @@ import importlib.util
 import json
 import math
 import os
+import glob
 import subprocess
 import sys
 import time
@@ -244,8 +245,107 @@ def step6_figures():
 
 
 # --------------------------------------------------------------------------- #
+def preflight():
+    """Fail early and legibly, rather than deep inside a traceback."""
+    problems = []
+
+    if sys.version_info < (3, 9):
+        problems.append(f"Python 3.9+ required; this is {sys.version.split()[0]}")
+
+    versions = {}
+    for mod, pip_name in (("numpy", "numpy"), ("scipy", "scipy"),
+                          ("sklearn", "scikit-learn"), ("matplotlib", "matplotlib")):
+        try:
+            versions[pip_name] = __import__(mod).__version__
+        except Exception:
+            problems.append(f"missing package: {pip_name}")
+
+    n_probs = len(glob.glob(os.path.join(PROBS, "*.npz")))
+    if n_probs != 90:
+        problems.append(f"expected 90 files in results/probs/, found {n_probs}")
+    for need in (os.path.join(RESULTS, "FINAL_RESULTS_perfold.csv"),
+                 os.path.join(ROOT, "src", "apex_pipeline.py")):
+        if not os.path.exists(need):
+            problems.append(f"missing: {os.path.relpath(need, ROOT)}")
+
+    print(f"  python        {sys.version.split()[0]} on {sys.platform}")
+    for k, v in versions.items():
+        print(f"  {k:<14}{v}")
+    print(f"  predictions   {n_probs} files in results/probs/")
+
+    if problems:
+        print("\n  Cannot start:")
+        for p_ in problems:
+            print(f"    - {p_}")
+        print("\n  Install the requirements with:  pip install -r requirements.txt")
+        print("  and run this from inside the repository directory.")
+        return False
+    return True
+
+
+REFERENCE = os.path.join(ROOT, "reference_outputs")
+
+
+def _num_close(a, b, tol=1e-9):
+    """Structural comparison that tolerates float noise but nothing else."""
+    if isinstance(a, dict):
+        if not isinstance(b, dict) or set(a) != set(b):
+            return False
+        return all(_num_close(a[k], b[k], tol) for k in a)
+    if isinstance(a, (list, tuple)):
+        if not isinstance(b, (list, tuple)) or len(a) != len(b):
+            return False
+        return all(_num_close(x, y, tol) for x, y in zip(a, b))
+    if isinstance(a, bool) or isinstance(b, bool):
+        return a == b
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        if math.isnan(a) and math.isnan(b):
+            return True
+        return abs(a - b) <= tol + tol * abs(b)
+    return a == b
+
+
+def step7_compare():
+    head(7, "compare what you just generated against our reference outputs")
+    if not os.path.isdir(REFERENCE):
+        print("  reference_outputs/ not present -- skipping")
+        return
+    print("  every file below was produced by our run and committed. Yours was")
+    print("  produced a moment ago on your machine. They should agree.\n")
+    n_ok = 0
+    for name in sorted(os.listdir(REFERENCE)):
+        ref = os.path.join(REFERENCE, name)
+        got = os.path.join(BUILD, name)
+        if not os.path.isfile(ref):
+            continue
+        if not os.path.exists(got):
+            ck(f"{name}", False, "not generated")
+            continue
+        if name.endswith(".json"):
+            try:
+                a = json.load(open(got)); b = json.load(open(ref))
+            except Exception as e:
+                ck(f"{name}", False, f"unreadable: {e}"); continue
+            same = _num_close(a, b, 1e-9)
+            ck(f"{name:<24} numeric match", same,
+               "" if same else "values differ beyond 1e-9")
+        else:
+            a = open(got, encoding="utf-8").read()
+            b = open(ref, encoding="utf-8").read()
+            same = a == b
+            ck(f"{name:<24} exact match", same,
+               "" if same else f"{sum(1 for x, y in zip(a.splitlines(), b.splitlines()) if x != y)} lines differ")
+        n_ok += same
+    print(f"\n  Figures are not byte-compared: PDF and PNG output embeds a creation")
+    print(f"  timestamp, so identical plots differ as files. The numbers behind them")
+    print(f"  are the JSON above, which is compared exactly.")
+
+
 def main():
     print(__doc__.split("Exit status")[0].rstrip())
+    print(f"\n{'=' * 78}\n  ENVIRONMENT\n{'=' * 78}")
+    if not preflight():
+        return 2
     os.makedirs(BUILD, exist_ok=True)
     ap = load_pipeline()
     rows = read_csv_rows()
@@ -259,6 +359,7 @@ def main():
     step4_claims()
     step5_proposition()
     step6_figures()
+    step7_compare()
 
     print(f"\n{'=' * 78}")
     if FAIL:
